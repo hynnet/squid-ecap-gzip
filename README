@@ -1,0 +1,4 @@
+eCAP adapter providing GZIP content-encoding / HTTP compression for SQUID.
+
+Originaly imported from http://code.google.com/p/squid-ecap-gzip/
+
