@@ -59,9 +59,9 @@ AC_TRY_COMPILE([
 
 
 dnl check if compiler can find C++ headers
-AC_CHECK_HEADER(iostream.h, [],
+AC_CHECK_HEADER(iostream, [],
 	AC_MSG_WARN([
-		Failure to find iostream.h indicates
+		Failure to find iostream indicates
 		a compiler installation problem; You 
 		may want to use --enable-std-include 
 		option to help your compiler to find
@@ -119,7 +119,7 @@ fi
 
 AC_CACHE_CHECK(for ios::fmtflags, ac_cv_have_type_iosfmtflags, [
 	AC_TRY_COMPILE([
-		#include <iostream.h>
+		#include <iostream>
 	],[
 		ios::fmtflags flags;
 		return sizeof(flags) == 0;
