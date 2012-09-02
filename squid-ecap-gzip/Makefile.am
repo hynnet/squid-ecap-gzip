@@ -2,6 +2,8 @@
 
 AUTOMAKE_OPTIONS = 1.5
 
+ACLOCAL_AMFLAGS = -I cfgaux
+
 SUBDIRS	= src
 
 EXTRA_DIST = \
