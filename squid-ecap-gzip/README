@@ -16,3 +16,14 @@ information, please visit the eCAP project web site: http://www.e-cap.org/
 For eCAP GZIP adapter documentation and support, please visit:
 http://code.google.com/p/squid-ecap-gzip/
 
+Configure SQUID to use VIGOS eCAP GZIP Adapter
+Add or edit the following lines in your etc/squid.conf:
+
+ecap_enable on
+loadable_modules /usr/local/lib/ecap_adapter_gzip.so
+ecap_service gzip_service respmod_precache 0 ecap://www.vigos.com/ecap_gzip
+acl GZIP_HTTP_STATUS http_status 200
+adaptation_access gzip_service allow GZIP_HTTP_STATUS
+
+upgrade to eCAP v0.2.0 interface by HuangYingNing https://github.com/hynnet/squid-ecap-gzip
+
