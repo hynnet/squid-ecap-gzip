@@ -62,8 +62,8 @@ namespace Adapter { // not required, but adds clarity
 		virtual void describe(std::ostream &os) const; // free-format info
 		
 		// Configuration
-		virtual void configure(const Config &cfg);
-		virtual void reconfigure(const Config &cfg);
+		virtual void configure(const libecap::Options &cfg);
+		virtual void reconfigure(const libecap::Options &cfg);
 		
 		// Lifecycle
 		virtual void start(); // expect makeXaction() calls
@@ -83,28 +83,41 @@ namespace Adapter { // not required, but adds clarity
 		Xaction(libecap::host::Xaction *x);
 		virtual ~Xaction();
 		
+		// meta-info for the host transaction
+		virtual const libecap::Area option(const libecap::Name &name) const;
+		virtual void visitEachOption(libecap::NamedValueVisitor &visitor) const;
+
 		// lifecycle
 		virtual void start();
 		virtual void stop();
 		
         // adapted body transmission control
-        virtual void abDiscard();
-        virtual void abMake();
-        virtual void abMakeMore();
-        virtual void abStopMaking();
+//		virtual void abDiscard() { noBodySupport(); }
+//		virtual void abMake() { noBodySupport(); }
+//		virtual void abMakeMore() { noBodySupport(); }
+//		virtual void abStopMaking() { noBodySupport(); }
+		virtual void abDiscard();
+		virtual void abMake();
+		virtual void abMakeMore();
+		virtual void abStopMaking();
 		
         // adapted body content extraction and consumption
-        virtual libecap::Area abContent(size_type offset, size_type size);
-        virtual void abContentShift(size_type size);
+//		virtual libecap::Area abContent(libecap::size_type, libecap::size_type) { noBodySupport(); return libecap::Area(); }
+//		virtual void abContentShift(libecap::size_type)  { noBodySupport(); }
+		virtual libecap::Area abContent(libecap::size_type, libecap::size_type);
+		virtual void abContentShift(libecap::size_type);
 		
         // virgin body state notification
-        virtual void noteVbContentDone(bool atEnd);
-        virtual void noteVbContentAvailable();
+//		virtual void noteVbContentDone(bool) { noBodySupport(); }
+//		virtual void noteVbContentAvailable() { noBodySupport(); }
+		virtual void noteVbContentDone(bool);
+		virtual void noteVbContentAvailable();
 		
 		// libecap::Callable API, via libecap::host::Xaction
 		virtual bool callable() const;
 		
 	protected:
+		void noBodySupport() const;
 		libecap::host::Xaction *lastHostCall(); // clears hostx
 		
 	private:
@@ -232,11 +245,11 @@ void Adapter::Service::describe(std::ostream &os) const {
 	os << "HTTP GZIP compression eCAP adapter";
 }
 
-void Adapter::Service::configure(const Config &) {
+void Adapter::Service::configure(const libecap::Options &) {
 	// this service is not configurable
 }
 
-void Adapter::Service::reconfigure(const Config &) {
+void Adapter::Service::reconfigure(const libecap::Options &) {
 	// this service is not configurable
 }
 
@@ -273,6 +286,14 @@ Adapter::Xaction::~Xaction() {
 		hostx = 0;
 		x->adaptationAborted();
 	}
+}
+
+const libecap::Area Adapter::Xaction::option(const libecap::Name &) const {
+	return libecap::Area(); // this transaction has no meta-information
+}
+
+void Adapter::Xaction::visitEachOption(libecap::NamedValueVisitor &) const {
+	// this transaction has no meta-information to pass to the visitor
 }
 
 void Adapter::Xaction::start() {
@@ -597,6 +618,11 @@ void Adapter::Xaction::noteVbContentAvailable()
 
 bool Adapter::Xaction::callable() const {
     return hostx != 0; // no point to call us if we are done
+}
+
+void Adapter::Xaction::noBodySupport() const {
+	Must(!"must not be called: minimal adapter offers no body support");
+	// not reached
 }
 
 // this method is used to make the last call to hostx transaction
